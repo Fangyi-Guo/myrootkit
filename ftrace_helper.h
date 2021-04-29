@@ -1,4 +1,9 @@
 /*
+* I refered this file from xcellerator online tutorial about the rootkit
+* from https://xcellerator.github.io/posts
+*/
+
+/* 
  * Helper library for ftrace hooking kernel functions
  * Author: Harvey Phillips (xcellerator@gmx.com)
  * License: GPL
