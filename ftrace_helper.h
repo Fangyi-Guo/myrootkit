@@ -9,13 +9,14 @@
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
+#include <linux/kprobes.h>
 
 #if defined(CONFIG_X86_64) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0))
 #define PTREGS_SYSCALL_STUBS 1
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,7,0)
-#define BRUTEFORCE_KADDR 1
+#define BRUTEFORCE_KADDR 0
 #endif
 
 #define HOOK(_name, _hook, _orig) \
@@ -33,6 +34,19 @@
  * matches the one we want.
  */
 #ifdef BRUTEFORCE_KADDR
+
+/*lookup name using kprobe*/
+unsigned long lookup_name(const char *name)
+{
+	struct kprobe kp;
+	kp.symbol_name = name;
+	
+	if(register_kprobe(&kp) < 0) return 0;
+	unsigned long r = (unsigned long)kp.addr;
+	unregister_kprobe(&kp);
+	return r;
+}
+
 unsigned long kaddr_lookup_name(const char *fname_raw)
 {
     int i;
@@ -139,10 +153,10 @@ static int fh_resolve_hook_address(struct ftrace_hook *hook)
     /*
      * Use a different function if we're on kernel version 5.7+
      */
-#ifdef BRUTEFORCE_KADDR
-    hook->address = kaddr_lookup_name(hook->name);
+#if BRUTEFORCE_KADDR
+    hook->address = lookup_name(hook->name);
 #else
-    hook->address = kallsyms_lookup_name(hook->name);
+    hook->address = lookup_name(hook->name);
 #endif
 
     if (!hook->address)
